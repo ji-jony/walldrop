@@ -474,7 +474,7 @@
 // =============================================
 const CONFIG = {
   UNSPLASH_KEY: 'YOUR_UNSPLASH_ACCESS_KEY',  // Get free at unsplash.com/developers
-  PEXELS_KEY:   'yMKbW9Mx6kpaIH7lhh4kqztGnSol3dTsSr71Or81g8DhfKZp1BLecyDY',        // Get free at pexels.com/api
+  PEXELS_KEY:   yMKbW9Mx6kpaIH7lhh4kqztGnSol3dTsSr71Or81g8DhfKZp1BLecyDY,        // Get free at pexels.com/api
   perPage: 20,
   // Track downloads in localStorage
 };
@@ -495,7 +495,7 @@ let isLoading = false;
 async function fetchUnsplash(query, pg = 1) {
   // DEMO MODE: uses curated Unsplash collection without API key
   // When you add your API key above, it switches to full API
-  if (CONFIG.UNSPLASH_KEY === 'yMKbW9Mx6kpaIH7lhh4kqztGnSol3dTsSr71Or81g8DhfKZp1BLecyDY') {
+  if (CONFIG.UNSPLASH_KEY === '') {
     return getDemoWalls(query, pg);
   }
   const q = query || 'wallpaper 4k';
