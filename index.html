@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WallDrop — Free 4K Wallpapers</title>
+<meta name="description" content="Download stunning free 4K wallpapers. Nature, abstract, space, anime, cars and more. New wallpapers added daily.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #111118;
+    --bg3: #1a1a24;
+    --card: #13131c;
+    --border: rgba(255,255,255,0.07);
+    --accent: #7c5cfc;
+    --accent2: #c084fc;
+    --text: #f0f0f8;
+    --muted: #8888aa;
+    --font-display: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 40px;
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+  .logo {
+    font-family: var(--font-display);
+    font-size: 22px; font-weight: 800;
+    background: linear-gradient(135deg, #fff 30%, var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    text-decoration: none;
+  }
+  .nav-links { display: flex; gap: 8px; align-items: center; }
+  .nav-links a {
+    color: var(--muted); text-decoration: none;
+    font-size: 14px; padding: 8px 16px; border-radius: 8px;
+    transition: all 0.2s;
+  }
+  .nav-links a:hover { color: var(--text); background: var(--bg3); }
+  .nav-btn {
+    background: var(--accent) !important; color: #fff !important;
+    font-weight: 500;
+  }
+  .nav-btn:hover { background: #6a4de0 !important; opacity: 1 !important; }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 120px 40px 60px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% 0%, rgba(124,92,252,0.15) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 20% 80%, rgba(192,132,252,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 80% 60%, rgba(124,92,252,0.06) 0%, transparent 60%);
+  }
+  .hero-grid {
+    position: absolute; inset: 0; z-index: 0; opacity: 0.03;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 60px 60px;
+  }
+  .hero-content { position: relative; z-index: 1; max-width: 760px; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(124,92,252,0.12); border: 1px solid rgba(124,92,252,0.3);
+    color: var(--accent2); font-size: 13px; padding: 6px 16px;
+    border-radius: 100px; margin-bottom: 28px;
+    animation: fadeUp 0.6s ease both;
+  }
+  .hero-badge span { width: 6px; height: 6px; background: var(--accent2); border-radius: 50%; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: clamp(40px, 7vw, 80px);
+    font-weight: 800; line-height: 1.05;
+    letter-spacing: -2px;
+    animation: fadeUp 0.6s 0.1s ease both;
+  }
+  h1 em {
+    font-style: normal;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .hero-sub {
+    font-size: 18px; color: var(--muted); margin-top: 20px; line-height: 1.6;
+    font-weight: 300;
+    animation: fadeUp 0.6s 0.2s ease both;
+  }
+
+  /* SEARCH */
+  .search-wrap {
+    margin-top: 40px; width: 100%; max-width: 580px;
+    animation: fadeUp 0.6s 0.3s ease both;
+  }
+  .search-box {
+    display: flex; align-items: center;
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 16px; padding: 6px 6px 6px 20px;
+    transition: border-color 0.2s;
+  }
+  .search-box:focus-within { border-color: rgba(124,92,252,0.5); }
+  .search-box input {
+    flex: 1; background: none; border: none; outline: none;
+    color: var(--text); font-family: var(--font-body); font-size: 16px;
+    padding: 10px 0;
+  }
+  .search-box input::placeholder { color: var(--muted); }
+  .search-box button {
+    background: var(--accent); color: #fff; border: none;
+    border-radius: 12px; padding: 12px 24px; font-size: 15px;
+    font-family: var(--font-body); font-weight: 500; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .search-box button:hover { background: #6a4de0; transform: scale(1.02); }
+
+  /* STATS */
+  .stats {
+    display: flex; gap: 40px; margin-top: 40px; justify-content: center;
+    animation: fadeUp 0.6s 0.4s ease both;
+  }
+  .stat { text-align: center; }
+  .stat-num { font-family: var(--font-display); font-size: 28px; font-weight: 700; }
+  .stat-label { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* CATEGORIES */
+  .section { padding: 80px 40px; max-width: 1400px; margin: 0 auto; }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: 32px; font-weight: 700; margin-bottom: 8px;
+  }
+  .section-sub { color: var(--muted); font-size: 15px; margin-bottom: 36px; }
+
+  .cats {
+    display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 50px;
+  }
+  .cat-btn {
+    padding: 10px 20px; border-radius: 100px;
+    border: 1px solid var(--border);
+    background: var(--card); color: var(--muted);
+    font-family: var(--font-body); font-size: 14px; font-weight: 500;
+    cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .cat-btn:hover, .cat-btn.active {
+    border-color: var(--accent); color: var(--text);
+    background: rgba(124,92,252,0.12);
+  }
+  .cat-btn .emoji { font-size: 16px; }
+
+  /* WALLPAPER GRID */
+  .wall-grid {
+    columns: 4; gap: 16px;
+  }
+  @media(max-width:1200px){.wall-grid{columns:3}}
+  @media(max-width:768px){.wall-grid{columns:2}}
+  @media(max-width:480px){.wall-grid{columns:1}}
+
+  .wall-card {
+    break-inside: avoid; margin-bottom: 16px;
+    border-radius: 16px; overflow: hidden;
+    position: relative; cursor: pointer;
+    background: var(--card);
+    border: 1px solid var(--border);
+    transition: transform 0.3s, box-shadow 0.3s;
+    animation: fadeIn 0.5s ease both;
+  }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+  .wall-card:hover { transform: translateY(-4px); box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+  .wall-card img {
+    width: 100%; display: block;
+    transition: transform 0.4s;
+  }
+  .wall-card:hover img { transform: scale(1.03); }
+  .wall-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 50%);
+    opacity: 0; transition: opacity 0.3s;
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 20px;
+  }
+  .wall-card:hover .wall-overlay { opacity: 1; }
+  .wall-title { font-size: 14px; font-weight: 500; margin-bottom: 4px; }
+  .wall-meta { font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 12px; }
+  .wall-actions { display: flex; gap: 8px; }
+  .dl-btn {
+    flex: 1; background: var(--accent); color: #fff;
+    border: none; border-radius: 8px; padding: 10px;
+    font-size: 13px; font-weight: 500; cursor: pointer;
+    font-family: var(--font-body); transition: background 0.2s;
+  }
+  .dl-btn:hover { background: #6a4de0; }
+  .fav-btn {
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15);
+    color: #fff; border-radius: 8px; padding: 10px 14px;
+    font-size: 16px; cursor: pointer; transition: all 0.2s;
+  }
+  .fav-btn:hover { background: rgba(255,100,100,0.3); border-color: rgba(255,100,100,0.5); }
+
+  /* LOADING */
+  .load-more {
+    text-align: center; margin-top: 50px;
+  }
+  .load-btn {
+    background: var(--card); color: var(--text);
+    border: 1px solid var(--border);
+    padding: 14px 40px; border-radius: 12px;
+    font-family: var(--font-body); font-size: 15px;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .load-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* SKELETON */
+  .skeleton {
+    background: var(--card); border-radius: 16px;
+    margin-bottom: 16px; overflow: hidden; position: relative;
+  }
+  .skeleton::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent);
+    animation: shimmer 1.5s infinite;
+  }
+  @keyframes shimmer { from{transform:translateX(-100%)} to{transform:translateX(100%)} }
+
+  /* MODAL */
+  .modal-bg {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(0,0,0,0.92); backdrop-filter: blur(10px);
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+  }
+  .modal-bg.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 20px; max-width: 900px; width: 100%;
+    max-height: 90vh; overflow-y: auto;
+    transform: scale(0.95); transition: transform 0.3s;
+  }
+  .modal-bg.open .modal { transform: scale(1); }
+  .modal-img img { width: 100%; border-radius: 20px 20px 0 0; display: block; }
+  .modal-body { padding: 28px; }
+  .modal-title { font-family: var(--font-display); font-size: 24px; font-weight: 700; margin-bottom: 8px; }
+  .modal-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .tag {
+    font-size: 12px; padding: 4px 12px; border-radius: 100px;
+    background: rgba(124,92,252,0.12); color: var(--accent2);
+    border: 1px solid rgba(124,92,252,0.2);
+  }
+  .modal-dl-row { display: flex; gap: 12px; }
+  .modal-dl-btn {
+    flex: 1; background: var(--accent); color: #fff; border: none;
+    border-radius: 12px; padding: 16px; font-size: 16px; font-weight: 600;
+    font-family: var(--font-display); cursor: pointer; transition: all 0.2s;
+  }
+  .modal-dl-btn:hover { background: #6a4de0; transform: translateY(-2px); }
+  .modal-close {
+    position: absolute; top: 16px; right: 16px; z-index: 10;
+    background: rgba(0,0,0,0.5); border: 1px solid var(--border);
+    color: #fff; width: 40px; height: 40px; border-radius: 50%;
+    font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  }
+
+  /* AD SLOTS */
+  .ad-slot {
+    background: var(--bg2); border: 1px dashed rgba(255,255,255,0.1);
+    border-radius: 12px; padding: 30px;
+    text-align: center; color: var(--muted); font-size: 13px;
+    margin: 40px 0;
+  }
+  .ad-slot-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.5; margin-bottom: 8px; }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 50px 40px;
+    display: flex; justify-content: space-between; align-items: center;
+    max-width: 1400px; margin: 0 auto;
+    flex-wrap: wrap; gap: 20px;
+  }
+  .footer-logo {
+    font-family: var(--font-display); font-size: 20px; font-weight: 800;
+    background: linear-gradient(135deg, #fff 30%, var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .footer-links { display: flex; gap: 24px; }
+  .footer-links a { color: var(--muted); text-decoration: none; font-size: 14px; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--text); }
+  .footer-copy { color: var(--muted); font-size: 13px; }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
+    background: var(--card); border: 1px solid var(--border);
+    color: var(--text); padding: 14px 24px; border-radius: 12px;
+    font-size: 14px; z-index: 999; transition: transform 0.3s;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* SPINNER */
+  .spinner {
+    width: 40px; height: 40px; border: 3px solid var(--border);
+    border-top-color: var(--accent); border-radius: 50%;
+    animation: spin 0.8s linear infinite; margin: 40px auto;
+  }
+  @keyframes spin { to{transform:rotate(360deg)} }
+
+  @media(max-width:600px) {
+    nav { padding: 14px 20px; }
+    .nav-links a:not(.nav-btn) { display: none; }
+    .section { padding: 60px 20px; }
+    .stats { gap: 24px; }
+    footer { flex-direction: column; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAVIGATION -->
+<nav>
+  <a href="/" class="logo">WallDrop</a>
+  <div class="nav-links">
+    <a href="#wallpapers">Browse</a>
+    <a href="categories.html">Categories</a>
+    <a href="admin/index.html" class="nav-btn">Admin</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-content">
+    <div class="hero-badge"><span></span> New wallpapers added daily</div>
+    <h1>Stunning <em>4K Wallpapers</em><br>Always Free</h1>
+    <p class="hero-sub">Thousands of ultra high-resolution wallpapers across every category.<br>Download instantly, no signup required.</p>
+    <div class="search-wrap">
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Search wallpapers... e.g. mountain, space, anime" />
+        <button onclick="searchWalls()">Search</button>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="stat-num" id="statCount">10,000+</div><div class="stat-label">Wallpapers</div></div>
+      <div class="stat"><div class="stat-num">4K</div><div class="stat-label">Resolution</div></div>
+      <div class="stat"><div class="stat-num">Free</div><div class="stat-label">Always & Forever</div></div>
+      <div class="stat"><div class="stat-num">Daily</div><div class="stat-label">New Additions</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- AD SLOT TOP -->
+<div style="max-width:1400px;margin:0 auto;padding:0 40px;">
+  <div class="ad-slot">
+    <div class="ad-slot-label">Advertisement</div>
+    <!-- PASTE YOUR GOOGLE ADSENSE CODE HERE -->
+    <p>Ad space — paste your Google AdSense code here after approval</p>
+  </div>
+</div>
+
+<!-- MAIN CONTENT -->
+<section class="section" id="wallpapers">
+  <h2 class="section-title">Browse Wallpapers</h2>
+  <p class="section-sub">Click any wallpaper to preview and download in full 4K resolution</p>
+
+  <!-- CATEGORIES -->
+  <div class="cats" id="catFilter">
+    <button class="cat-btn active" onclick="filterCat('all', this)"><span class="emoji">🌐</span> All</button>
+    <button class="cat-btn" onclick="filterCat('nature', this)"><span class="emoji">🌿</span> Nature</button>
+    <button class="cat-btn" onclick="filterCat('space', this)"><span class="emoji">🌌</span> Space</button>
+    <button class="cat-btn" onclick="filterCat('abstract', this)"><span class="emoji">🎨</span> Abstract</button>
+    <button class="cat-btn" onclick="filterCat('architecture', this)"><span class="emoji">🏛️</span> Architecture</button>
+    <button class="cat-btn" onclick="filterCat('animals', this)"><span class="emoji">🦁</span> Animals</button>
+    <button class="cat-btn" onclick="filterCat('cars', this)"><span class="emoji">🚗</span> Cars</button>
+    <button class="cat-btn" onclick="filterCat('ocean', this)"><span class="emoji">🌊</span> Ocean</button>
+    <button class="cat-btn" onclick="filterCat('city', this)"><span class="emoji">🌆</span> City</button>
+  </div>
+
+  <!-- GRID -->
+  <div class="wall-grid" id="wallGrid">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- AD SLOT MID -->
+  <div class="ad-slot" style="margin:40px 0">
+    <div class="ad-slot-label">Advertisement</div>
+    <!-- PASTE YOUR GOOGLE ADSENSE CODE HERE -->
+    <p>Ad space — paste your Google AdSense code here</p>
+  </div>
+
+  <div class="load-more">
+    <button class="load-btn" id="loadMoreBtn" onclick="loadMore()">Load More Wallpapers</button>
+  </div>
+</section>
+
+<!-- AD SLOT BOTTOM -->
+<div style="max-width:1400px;margin:0 auto;padding:0 40px 40px;">
+  <div class="ad-slot">
+    <div class="ad-slot-label">Advertisement</div>
+    <p>Ad space — paste your Google AdSense code here</p>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">WallDrop</div>
+  <div class="footer-links">
+    <a href="#">About</a>
+    <a href="#">Privacy Policy</a>
+    <a href="#">DMCA</a>
+    <a href="#">Contact</a>
+  </div>
+  <div class="footer-copy">© 2025 WallDrop. Images via Unsplash, Pexels & Pixabay.</div>
+</footer>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modalBg" onclick="closeModal(event)">
+  <div class="modal" id="modal">
+    <div style="position:relative">
+      <button class="modal-close" onclick="closeModalDirect()">✕</button>
+      <div class="modal-img" id="modalImg"></div>
+    </div>
+    <div class="modal-body">
+      <h2 class="modal-title" id="modalTitle"></h2>
+      <div class="modal-tags" id="modalTags"></div>
+      <!-- AD before download -->
+      <div class="ad-slot" style="margin-bottom:20px;">
+        <div class="ad-slot-label">Advertisement</div>
+        <p>Ad — paste AdSense code here (shows before download)</p>
+      </div>
+      <div class="modal-dl-row">
+        <button class="modal-dl-btn" id="modalDlBtn">⬇ Download 4K Wallpaper</button>
+      </div>
+      <p style="font-size:12px;color:var(--muted);margin-top:12px;text-align:center;">Free to use • No signup required • High resolution</p>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// =============================================
+// CONFIGURATION — Edit these values
+// =============================================
+const CONFIG = {
+  UNSPLASH_KEY: 'YOUR_UNSPLASH_ACCESS_KEY',  // Get free at unsplash.com/developers
+  PEXELS_KEY:   'YOUR_PEXELS_API_KEY',        // Get free at pexels.com/api
+  perPage: 20,
+  // Track downloads in localStorage
+};
+
+// =============================================
+// STATE
+// =============================================
+let allWalls = [];
+let filtered = [];
+let page = 1;
+let currentCat = 'all';
+let currentQuery = '';
+let isLoading = false;
+
+// =============================================
+// FETCH FROM UNSPLASH (FREE API)
+// =============================================
+async function fetchUnsplash(query, pg = 1) {
+  // DEMO MODE: uses curated Unsplash collection without API key
+  // When you add your API key above, it switches to full API
+  if (CONFIG.UNSPLASH_KEY === 'YOUR_UNSPLASH_ACCESS_KEY') {
+    return getDemoWalls(query, pg);
+  }
+  const q = query || 'wallpaper 4k';
+  const url = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(q)}&per_page=${CONFIG.perPage}&page=${pg}&orientation=landscape&client_id=${CONFIG.UNSPLASH_KEY}`;
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    return (data.results || []).map(p => ({
+      id: p.id,
+      title: p.alt_description || p.description || 'Wallpaper',
+      thumb: p.urls.regular,
+      full: p.urls.full,
+      download: p.links.download,
+      author: p.user.name,
+      category: query,
+      tags: p.tags ? p.tags.slice(0,4).map(t=>t.title) : [],
+      source: 'Unsplash',
+      color: p.color
+    }));
+  } catch(e) {
+    return getDemoWalls(query, pg);
+  }
+}
+
+// =============================================
+// DEMO WALLS (works without API key!)
+// =============================================
+function getDemoWalls(query, pg) {
+  const cats = {
+    nature:       [1500, 1483, 1459, 1435, 1429, 1437, 1448, 1462],
+    space:        [1169, 1194, 1274, 1285, 1297, 1320, 1341, 1389],
+    abstract:     [1209, 1222, 1234, 1243, 1255, 1267, 1278, 1290],
+    architecture: [1100, 1115, 1128, 1142, 1155, 1163, 1171, 1180],
+    animals:      [1317, 1325, 1333, 1341, 1349, 1357, 1365, 1373],
+    cars:         [1051, 1063, 1075, 1087, 1093, 1099, 1108, 1112],
+    ocean:        [1200, 1214, 1228, 1242, 1256, 1270, 1284, 1298],
+    city:         [1000, 1012, 1024, 1036, 1048, 1060, 1072, 1084],
+  };
+  const offset = (pg-1) * CONFIG.perPage;
+  const results = [];
+  for (let i = 0; i < CONFIG.perPage; i++) {
+    const seed = (offset + i + (query ? query.length : 0)) * 7 + 100;
+    const w = 1920, h = [1080, 1200, 900, 1350][i % 4];
+    results.push({
+      id: `demo-${seed}`,
+      title: getDemoTitle(query, i),
+      thumb: `https://picsum.photos/seed/${seed}/800/500`,
+      full:  `https://picsum.photos/seed/${seed}/3840/2160`,
+      download: `https://picsum.photos/seed/${seed}/3840/2160`,
+      author: ['John Doe','Jane Smith','Alex Kim','Maria G','Sam Lee'][i%5],
+      category: query || 'all',
+      tags: getDemoTags(query),
+      source: 'Demo',
+      color: '#7c5cfc'
+    });
+  }
+  return results;
+}
+
+function getDemoTitle(q, i) {
+  const names = {
+    nature:['Forest Dawn','Mountain Mist','Autumn Valley','Green Canopy','Waterfall','Meadow Sunrise','Pine Forest','Desert Bloom'],
+    space:['Nebula Dreams','Milky Way','Aurora Borealis','Star Cluster','Galaxy Core','Cosmic Dust','Solar Flare','Andromeda'],
+    abstract:['Liquid Color','Neon Waves','Digital Flux','Color Burst','Fluid Art','Geometric Dreams','Prism Light','Vortex'],
+    architecture:['City Skyline','Glass Tower','Modern Bridge','Cathedral','Urban Grid','Spiral Staircase','Arch Bridge','Brutalist'],
+    animals:['Lion Pride','Wolf Pack','Eagle Flight','Tiger Eyes','Arctic Fox','Whale Dive','Elephant Herd','Owl Night'],
+    cars:['Speed King','Night Drive','Classic Chrome','Sport Red','Street Machine','Desert Rally','Mountain Pass','Drift King'],
+    ocean:['Wave Crash','Deep Blue','Coral Reef','Tidal Force','Ocean Storm','Sunrise Shore','Underwater World','Sea Glass'],
+    city:['Neon Tokyo','NYC Night','London Fog','Paris Dawn','Dubai Gold','Shanghai Sky','Berlin Street','Hong Kong Rain'],
+  };
+  const arr = names[q] || ['Beautiful Wallpaper','Stunning View','Epic Scene','Amazing Shot','Perfect Moment','Gorgeous Landscape','Beautiful World','Amazing Nature'];
+  return arr[i % arr.length];
+}
+
+function getDemoTags(q) {
+  const base = ['4K','wallpaper','free','HD'];
+  const extra = {
+    nature:['nature','landscape','outdoors'],
+    space:['space','cosmos','astronomy'],
+    abstract:['abstract','art','design'],
+    architecture:['architecture','building','urban'],
+    animals:['animals','wildlife','nature'],
+    cars:['cars','automotive','speed'],
+    ocean:['ocean','water','sea'],
+    city:['city','urban','night'],
+  };
+  return [...base, ...(extra[q]||['beautiful','stunning'])].slice(0,5);
+}
+
+// =============================================
+// RENDER WALLS
+// =============================================
+function renderWalls(walls, append = false) {
+  const grid = document.getElementById('wallGrid');
+  if (!append) grid.innerHTML = '';
+
+  if (!walls.length && !append) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:60px 0">No wallpapers found. Try a different search.</div>`;
+    return;
+  }
+
+  walls.forEach((w, i) => {
+    const card = document.createElement('div');
+    card.className = 'wall-card';
+    card.style.animationDelay = `${(i % 8) * 0.05}s`;
+    card.innerHTML = `
+      <img src="${w.thumb}" alt="${w.title}" loading="lazy" onerror="this.src='https://picsum.photos/seed/${Math.random()*999|0}/800/500'">
+      <div class="wall-overlay">
+        <div class="wall-title">${w.title}</div>
+        <div class="wall-meta">by ${w.author} · ${w.source}</div>
+        <div class="wall-actions">
+          <button class="dl-btn" onclick="openModal(event, ${JSON.stringify(w).replace(/"/g,'&quot;')})">⬇ Download 4K</button>
+          <button class="fav-btn" onclick="toggleFav(event, '${w.id}')">♡</button>
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+// =============================================
+// MODAL
+// =============================================
+function openModal(e, wall) {
+  e.stopPropagation();
+  const bg = document.getElementById('modalBg');
+  document.getElementById('modalImg').innerHTML = `<img src="${wall.full}" alt="${wall.title}" style="max-height:55vh;object-fit:cover;width:100%">`;
+  document.getElementById('modalTitle').textContent = wall.title;
+  document.getElementById('modalTags').innerHTML = wall.tags.map(t=>`<span class="tag">${t}</span>`).join('');
+  document.getElementById('modalDlBtn').onclick = () => downloadWall(wall);
+  bg.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  trackEvent('view', wall.id);
+}
+function closeModal(e) { if(e.target === document.getElementById('modalBg')) closeModalDirect(); }
+function closeModalDirect() {
+  document.getElementById('modalBg').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// =============================================
+// DOWNLOAD
+// =============================================
+function downloadWall(wall) {
+  trackEvent('download', wall.id);
+  showToast('⬇ Download starting...');
+  const a = document.createElement('a');
+  a.href = wall.download;
+  a.download = `${wall.title.replace(/\s+/g,'-')}-4K-WallDrop.jpg`;
+  a.target = '_blank';
+  a.rel = 'noopener';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+// =============================================
+// SEARCH & FILTER
+// =============================================
+function searchWalls() {
+  currentQuery = document.getElementById('searchInput').value.trim();
+  page = 1; allWalls = [];
+  loadWalls();
+}
+document.getElementById('searchInput').addEventListener('keypress', e => {
+  if (e.key === 'Enter') searchWalls();
+});
+
+function filterCat(cat, btn) {
+  currentCat = cat;
+  currentQuery = cat === 'all' ? '' : cat;
+  page = 1; allWalls = [];
+  document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadWalls();
+}
+
+// =============================================
+// LOAD
+// =============================================
+async function loadWalls() {
+  if (isLoading) return;
+  isLoading = true;
+  const grid = document.getElementById('wallGrid');
+  if (page === 1) grid.innerHTML = '<div class="spinner"></div>';
+
+  const walls = await fetchUnsplash(currentQuery || 'beautiful landscape wallpaper', page);
+  allWalls = [...allWalls, ...walls];
+
+  renderWalls(walls, page > 1);
+  isLoading = false;
+}
+
+async function loadMore() {
+  page++;
+  await loadWalls();
+}
+
+// =============================================
+// FAVOURITES
+// =============================================
+function toggleFav(e, id) {
+  e.stopPropagation();
+  const favs = JSON.parse(localStorage.getItem('walldrop_favs') || '[]');
+  const idx = favs.indexOf(id);
+  if (idx === -1) { favs.push(id); showToast('❤️ Added to favourites!'); }
+  else { favs.splice(idx, 1); showToast('Removed from favourites'); }
+  localStorage.setItem('walldrop_favs', JSON.stringify(favs));
+  e.target.textContent = idx === -1 ? '♥' : '♡';
+}
+
+// =============================================
+// ANALYTICS (tracks in localStorage for admin)
+// =============================================
+function trackEvent(type, id) {
+  const key = `walldrop_${type}s`;
+  const data = JSON.parse(localStorage.getItem(key) || '{}');
+  data[id] = (data[id] || 0) + 1;
+  localStorage.setItem(key, JSON.stringify(data));
+
+  // Track daily visits
+  const today = new Date().toISOString().split('T')[0];
+  const visits = JSON.parse(localStorage.getItem('walldrop_visits') || '{}');
+  visits[today] = (visits[today] || 0) + 1;
+  localStorage.setItem('walldrop_visits', JSON.stringify(visits));
+
+  // Track total
+  const total = parseInt(localStorage.getItem('walldrop_total_'+ type) || '0') + 1;
+  localStorage.setItem('walldrop_total_' + type, total);
+}
+
+// Track page visit
+trackEvent('visit', 'page');
+
+// =============================================
+// TOAST
+// =============================================
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// =============================================
+// INIT
+// =============================================
+loadWalls();
+</script>
+</body>
+</html>

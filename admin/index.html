@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WallDrop Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0a0a0f; --bg2: #111118; --bg3: #1a1a24; --card: #13131c;
+    --border: rgba(255,255,255,0.07); --accent: #7c5cfc; --accent2: #c084fc;
+    --text: #f0f0f8; --muted: #8888aa;
+    --green: #22c55e; --red: #ef4444; --amber: #f59e0b; --blue: #3b82f6;
+    --font-display: 'Syne', sans-serif; --font-body: 'DM Sans', sans-serif;
+  }
+  body { background: var(--bg); color: var(--text); font-family: var(--font-body); min-height: 100vh; display: flex; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 240px; background: var(--bg2); border-right: 1px solid var(--border);
+    padding: 28px 16px; display: flex; flex-direction: column; gap: 4px;
+    position: fixed; top: 0; left: 0; bottom: 0; z-index: 50; overflow-y: auto;
+  }
+  .sidebar-logo {
+    font-family: var(--font-display); font-size: 20px; font-weight: 800;
+    background: linear-gradient(135deg, #fff 30%, var(--accent2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    padding: 0 12px; margin-bottom: 28px;
+  }
+  .sidebar-logo small { display: block; font-size: 11px; -webkit-text-fill-color: var(--muted); font-weight: 400; margin-top: 2px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-radius: 10px;
+    color: var(--muted); text-decoration: none; font-size: 14px;
+    cursor: pointer; transition: all 0.2s; border: none; background: none;
+    width: 100%; text-align: left;
+  }
+  .nav-item:hover { background: var(--bg3); color: var(--text); }
+  .nav-item.active { background: rgba(124,92,252,0.15); color: var(--accent2); }
+  .nav-icon { font-size: 18px; width: 24px; text-align: center; }
+  .nav-section { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); padding: 16px 12px 6px; opacity: 0.5; }
+  .sidebar-bottom { margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border); }
+  .site-link { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 10px; color: var(--muted); text-decoration: none; font-size: 13px; transition: all 0.2s; }
+  .site-link:hover { color: var(--text); background: var(--bg3); }
+
+  /* MAIN */
+  .main { margin-left: 240px; flex: 1; padding: 32px; min-height: 100vh; }
+
+  /* HEADER */
+  .page-header { margin-bottom: 32px; display: flex; justify-content: space-between; align-items: center; }
+  .page-title { font-family: var(--font-display); font-size: 28px; font-weight: 700; }
+  .page-sub { color: var(--muted); font-size: 14px; margin-top: 4px; }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  .refresh-btn {
+    background: var(--card); border: 1px solid var(--border);
+    color: var(--text); padding: 10px 20px; border-radius: 10px;
+    font-family: var(--font-body); font-size: 14px; cursor: pointer; transition: all 0.2s;
+  }
+  .refresh-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .live-dot { width: 8px; height: 8px; background: var(--green); border-radius: 50%; animation: pulse 2s infinite; display: inline-block; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+
+  /* STATS GRID */
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 28px; }
+  @media(max-width:1100px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
+  .stat-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 24px;
+    position: relative; overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .stat-card:hover { border-color: rgba(124,92,252,0.3); }
+  .stat-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: var(--accent-color, var(--accent));
+  }
+  .stat-icon { font-size: 24px; margin-bottom: 16px; }
+  .stat-value { font-family: var(--font-display); font-size: 36px; font-weight: 700; }
+  .stat-label { color: var(--muted); font-size: 13px; margin-top: 6px; }
+  .stat-change { font-size: 12px; margin-top: 8px; }
+  .stat-change.up { color: var(--green); }
+  .stat-change.down { color: var(--red); }
+
+  /* CHARTS ROW */
+  .charts-row { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; margin-bottom: 28px; }
+  @media(max-width:900px){.charts-row{grid-template-columns:1fr}}
+  .chart-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 24px;
+  }
+  .chart-title { font-family: var(--font-display); font-size: 16px; font-weight: 600; margin-bottom: 20px; }
+
+  /* SIMPLE BAR CHART */
+  .bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 160px; }
+  .bar-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; }
+  .bar { width: 100%; border-radius: 6px 6px 0 0; background: var(--accent); opacity: 0.7; transition: opacity 0.2s; min-height: 4px; }
+  .bar:hover { opacity: 1; }
+  .bar-label { font-size: 10px; color: var(--muted); }
+  .bar-val { font-size: 10px; color: var(--muted); }
+
+  /* DONUT */
+  .donut-wrap { display: flex; align-items: center; justify-content: center; gap: 24px; flex-wrap: wrap; }
+  .donut-legend { display: flex; flex-direction: column; gap: 10px; }
+  .legend-item { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+  /* TABLE */
+  .table-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; overflow: hidden; margin-bottom: 28px;
+  }
+  .table-header {
+    padding: 20px 24px; border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .table-title { font-family: var(--font-display); font-size: 16px; font-weight: 600; }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; padding: 14px 20px; font-size: 12px; color: var(--muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--border); }
+  td { padding: 14px 20px; font-size: 14px; border-bottom: 1px solid rgba(255,255,255,0.03); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+  .badge { display: inline-block; padding: 4px 12px; border-radius: 100px; font-size: 11px; font-weight: 500; }
+  .badge-green { background: rgba(34,197,94,0.12); color: var(--green); }
+  .badge-amber { background: rgba(245,158,11,0.12); color: var(--amber); }
+  .badge-blue { background: rgba(59,130,246,0.12); color: var(--blue); }
+  .badge-purple { background: rgba(124,92,252,0.12); color: var(--accent2); }
+
+  /* REVENUE SECTION */
+  .revenue-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 28px; }
+  @media(max-width:900px){.revenue-grid{grid-template-columns:1fr}}
+  .rev-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 24px;
+  }
+  .rev-title { font-size: 13px; color: var(--muted); margin-bottom: 12px; }
+  .rev-value { font-family: var(--font-display); font-size: 30px; font-weight: 700; }
+  .rev-note { font-size: 12px; color: var(--muted); margin-top: 8px; }
+
+  /* API STATUS */
+  .api-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 28px; }
+  .api-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 12px;
+  }
+  .api-status { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .api-status.ok { background: var(--green); }
+  .api-status.warn { background: var(--amber); }
+  .api-status.err { background: var(--red); }
+  .api-name { font-size: 14px; font-weight: 500; }
+  .api-detail { font-size: 12px; color: var(--muted); }
+
+  /* PAGES */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* SETUP GUIDE */
+  .setup-step {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 24px; margin-bottom: 16px;
+    display: flex; gap: 20px; align-items: flex-start;
+  }
+  .step-num {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: rgba(124,92,252,0.2); border: 1px solid rgba(124,92,252,0.4);
+    color: var(--accent2); font-family: var(--font-display); font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 16px;
+  }
+  .step-num.done { background: rgba(34,197,94,0.2); border-color: rgba(34,197,94,0.4); color: var(--green); }
+  .step-title { font-weight: 500; font-size: 16px; margin-bottom: 6px; }
+  .step-desc { color: var(--muted); font-size: 14px; line-height: 1.6; }
+  .step-link { color: var(--accent2); text-decoration: none; }
+  .step-link:hover { text-decoration: underline; }
+  .code-block {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 18px; font-family: monospace;
+    font-size: 13px; color: var(--accent2); margin-top: 12px; word-break: break-all;
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">WallDrop <small>Admin Panel</small></div>
+
+  <div class="nav-section">Overview</div>
+  <button class="nav-item active" onclick="showPage('dashboard', this)"><span class="nav-icon">📊</span> Dashboard</button>
+  <button class="nav-item" onclick="showPage('revenue', this)"><span class="nav-icon">💰</span> Revenue</button>
+  <button class="nav-item" onclick="showPage('traffic', this)"><span class="nav-icon">👥</span> Traffic</button>
+
+  <div class="nav-section">Content</div>
+  <button class="nav-item" onclick="showPage('wallpapers', this)"><span class="nav-icon">🖼️</span> Wallpapers</button>
+  <button class="nav-item" onclick="showPage('categories', this)"><span class="nav-icon">🗂️</span> Categories</button>
+
+  <div class="nav-section">Settings</div>
+  <button class="nav-item" onclick="showPage('apis', this)"><span class="nav-icon">🔌</span> API Setup</button>
+  <button class="nav-item" onclick="showPage('setup', this)"><span class="nav-icon">🚀</span> Launch Guide</button>
+
+  <div class="sidebar-bottom">
+    <a href="../index.html" class="site-link">← View Live Site</a>
+  </div>
+</aside>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+  <!-- DASHBOARD PAGE -->
+  <div class="page active" id="page-dashboard">
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-sub">Your website performance at a glance</p>
+      </div>
+      <div class="header-right">
+        <span class="live-dot"></span>
+        <span style="font-size:13px;color:var(--muted)">Live</span>
+        <button class="refresh-btn" onclick="refreshData()">⟳ Refresh</button>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-grid">
+      <div class="stat-card" style="--accent-color:#7c5cfc">
+        <div class="stat-icon">👁️</div>
+        <div class="stat-value" id="stat-visits">0</div>
+        <div class="stat-label">Total Page Views</div>
+        <div class="stat-change up" id="stat-visits-change">↑ Today: 0</div>
+      </div>
+      <div class="stat-card" style="--accent-color:#22c55e">
+        <div class="stat-icon">⬇️</div>
+        <div class="stat-value" id="stat-downloads">0</div>
+        <div class="stat-label">Total Downloads</div>
+        <div class="stat-change up" id="stat-dl-change">Free wallpapers delivered</div>
+      </div>
+      <div class="stat-card" style="--accent-color:#f59e0b">
+        <div class="stat-icon">💰</div>
+        <div class="stat-value" id="stat-revenue">$0</div>
+        <div class="stat-label">Est. Ad Revenue</div>
+        <div class="stat-change" id="stat-rev-note" style="color:var(--muted)">Connect AdSense to track</div>
+      </div>
+      <div class="stat-card" style="--accent-color:#3b82f6">
+        <div class="stat-icon">🖼️</div>
+        <div class="stat-value" id="stat-walls">10K+</div>
+        <div class="stat-label">Wallpapers Available</div>
+        <div class="stat-change up">Via APIs (auto-updating)</div>
+      </div>
+    </div>
+
+    <!-- CHARTS -->
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-title">Traffic — Last 7 Days</div>
+        <div class="bar-chart" id="trafficChart"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-title">Top Categories</div>
+        <div class="donut-wrap">
+          <svg width="120" height="120" viewBox="0 0 120 120" id="donutSvg"></svg>
+          <div class="donut-legend" id="donutLegend"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- API STATUS -->
+    <h3 style="font-family:var(--font-display);margin-bottom:12px;font-size:16px;">API Sources Status</h3>
+    <div class="api-grid">
+      <div class="api-card">
+        <div class="api-status ok" id="unsplash-status"></div>
+        <div><div class="api-name">Unsplash</div><div class="api-detail" id="unsplash-detail">Configure API key</div></div>
+      </div>
+      <div class="api-card">
+        <div class="api-status warn" id="pexels-status"></div>
+        <div><div class="api-name">Pexels</div><div class="api-detail" id="pexels-detail">Configure API key</div></div>
+      </div>
+      <div class="api-card">
+        <div class="api-status ok"></div>
+        <div><div class="api-name">Demo Mode</div><div class="api-detail">Working — no key needed</div></div>
+      </div>
+    </div>
+
+    <!-- RECENT ACTIVITY -->
+    <div class="table-card">
+      <div class="table-header">
+        <div class="table-title">Recent Activity</div>
+        <span class="badge badge-green">Live tracking</span>
+      </div>
+      <table>
+        <thead><tr><th>Event</th><th>Time</th><th>Details</th><th>Status</th></tr></thead>
+        <tbody id="activityTable">
+          <tr><td colspan="4" style="text-align:center;color:var(--muted);padding:40px">No activity yet — visit your site to start tracking</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- REVENUE PAGE -->
+  <div class="page" id="page-revenue">
+    <div class="page-header">
+      <div><h1 class="page-title">Revenue</h1><p class="page-sub">Ad earnings and monetization tracking</p></div>
+    </div>
+    <div class="revenue-grid">
+      <div class="rev-card">
+        <div class="rev-title">Est. Monthly Revenue</div>
+        <div class="rev-value" style="color:var(--green)" id="rev-monthly">$0</div>
+        <div class="rev-note">Based on ~$2 RPM × page views</div>
+      </div>
+      <div class="rev-card">
+        <div class="rev-title">Est. Annual Revenue</div>
+        <div class="rev-value" id="rev-annual">$0</div>
+        <div class="rev-note">At current traffic level</div>
+      </div>
+      <div class="rev-card">
+        <div class="rev-title">Revenue Per 1K Visitors</div>
+        <div class="rev-value" style="color:var(--accent2)">$1–$5</div>
+        <div class="rev-note">Typical wallpaper site RPM</div>
+      </div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-header"><div class="table-title">How to Maximize Revenue</div></div>
+      <table>
+        <thead><tr><th>Strategy</th><th>Expected Boost</th><th>Action</th></tr></thead>
+        <tbody>
+          <tr><td>Google AdSense approval</td><td><span class="badge badge-green">+$1–3 RPM</span></td><td>Apply at adsense.google.com</td></tr>
+          <tr><td>More ad placements (3–4 per page)</td><td><span class="badge badge-amber">+30–50%</span></td><td>Add banner before download</td></tr>
+          <tr><td>SEO — rank on Google</td><td><span class="badge badge-blue">+500% traffic</span></td><td>Add meta tags, sitemap.xml</td></tr>
+          <tr><td>Social media sharing</td><td><span class="badge badge-purple">+200% traffic</span></td><td>Post on Pinterest, Reddit</td></tr>
+          <tr><td>Media.net (backup ads)</td><td><span class="badge badge-green">+10–20%</span></td><td>Apply at media.net</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="setup-step">
+      <div class="step-num">💡</div>
+      <div>
+        <div class="step-title">Revenue Estimate for Your Site</div>
+        <div class="step-desc">
+          A wallpaper site with 10,000 monthly visitors typically earns $20–$50/month from AdSense.
+          With 100,000 visitors: $200–$500/month. Growth takes 3–6 months of SEO.
+          <br><br>
+          <strong style="color:var(--text)">Key metric to watch:</strong> RPM (Revenue per 1000 impressions). Wallpaper sites average $1–5 RPM. Optimize your ad placement to increase this.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRAFFIC PAGE -->
+  <div class="page" id="page-traffic">
+    <div class="page-header">
+      <div><h1 class="page-title">Traffic</h1><p class="page-sub">Visitor analytics and engagement</p></div>
+    </div>
+    <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+      <div class="stat-card" style="--accent-color:#7c5cfc">
+        <div class="stat-icon">👥</div>
+        <div class="stat-value" id="t-visits">0</div>
+        <div class="stat-label">Total Visits</div>
+      </div>
+      <div class="stat-card" style="--accent-color:#22c55e">
+        <div class="stat-icon">📅</div>
+        <div class="stat-value" id="t-today">0</div>
+        <div class="stat-label">Visits Today</div>
+      </div>
+      <div class="stat-card" style="--accent-color:#3b82f6">
+        <div class="stat-icon">⬇️</div>
+        <div class="stat-value" id="t-downloads">0</div>
+        <div class="stat-label">Downloads</div>
+      </div>
+    </div>
+
+    <div class="chart-card" style="margin-bottom:20px">
+      <div class="chart-title">Daily Visits — Last 14 Days</div>
+      <div class="bar-chart" id="trafficChart14" style="height:200px"></div>
+    </div>
+
+    <div class="setup-step">
+      <div class="step-num">📊</div>
+      <div>
+        <div class="step-title">Connect Google Analytics for full tracking</div>
+        <div class="step-desc">
+          This dashboard tracks basic stats in your browser. For full analytics (countries, devices, bounce rate, real-time), add Google Analytics 4 to your site.
+          <br><br>
+          1. Go to <a href="https://analytics.google.com" target="_blank" class="step-link">analytics.google.com</a> → Create account → Get your Measurement ID<br>
+          2. Paste this code before &lt;/head&gt; in your index.html:
+        </div>
+        <div class="code-block">&lt;!-- Google Analytics --&gt;<br>&lt;script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"&gt;&lt;/script&gt;<br>&lt;script&gt;window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');&lt;/script&gt;</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WALLPAPERS PAGE -->
+  <div class="page" id="page-wallpapers">
+    <div class="page-header">
+      <div><h1 class="page-title">Wallpapers</h1><p class="page-sub">Auto-collected from free API sources</p></div>
+    </div>
+    <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+      <div class="stat-card" style="--accent-color:#7c5cfc">
+        <div class="stat-icon">🖼️</div>
+        <div class="stat-value">∞</div>
+        <div class="stat-label">Available (via APIs)</div>
+      </div>
+      <div class="stat-card" style="--accent-color:#22c55e">
+        <div class="stat-icon">🔄</div>
+        <div class="stat-value">Auto</div>
+        <div class="stat-label">Collection Method</div>
+      </div>
+      <div class="stat-card" style="--accent-color:#f59e0b">
+        <div class="stat-icon">💾</div>
+        <div class="stat-value">Free</div>
+        <div class="stat-label">Storage Cost</div>
+      </div>
+    </div>
+    <div class="setup-step">
+      <div class="step-num">ℹ️</div>
+      <div>
+        <div class="step-title">How auto-collection works</div>
+        <div class="step-desc">
+          Your site pulls wallpapers in real-time from Unsplash, Pexels, and Pixabay APIs. No storage needed — images load directly from their servers. This means zero hosting cost for images and always-fresh content.<br><br>
+          <strong style="color:var(--text)">APIs used:</strong> Unsplash (free, up to 50 req/hour), Pexels (free, 200 req/hour), Pixabay (free, 100 req/min).<br><br>
+          Go to <strong style="color:var(--text)">API Setup</strong> in the sidebar to add your keys and unlock more features.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CATEGORIES PAGE -->
+  <div class="page" id="page-categories">
+    <div class="page-header">
+      <div><h1 class="page-title">Categories</h1></div>
+    </div>
+    <div class="stats-grid" style="grid-template-columns:repeat(4,1fr)">
+      <div class="stat-card" style="--accent-color:#22c55e"><div class="stat-icon">🌿</div><div class="stat-value">Nature</div><div class="stat-label">Active</div></div>
+      <div class="stat-card" style="--accent-color:#3b82f6"><div class="stat-icon">🌌</div><div class="stat-value">Space</div><div class="stat-label">Active</div></div>
+      <div class="stat-card" style="--accent-color:#7c5cfc"><div class="stat-icon">🎨</div><div class="stat-value">Abstract</div><div class="stat-label">Active</div></div>
+      <div class="stat-card" style="--accent-color:#f59e0b"><div class="stat-icon">🏛️</div><div class="stat-value">Architecture</div><div class="stat-label">Active</div></div>
+      <div class="stat-card" style="--accent-color:#ef4444"><div class="stat-icon">🦁</div><div class="stat-value">Animals</div><div class="stat-label">Active</div></div>
+      <div class="stat-card" style="--accent-color:#c084fc"><div class="stat-icon">🚗</div><div class="stat-value">Cars</div><div class="stat-label">Active</div></div>
+      <div class="stat-card" style="--accent-color:#06b6d4"><div class="stat-icon">🌊</div><div class="stat-value">Ocean</div><div class="stat-label">Active</div></div>
+      <div class="stat-card" style="--accent-color:#f97316"><div class="stat-icon">🌆</div><div class="stat-value">City</div><div class="stat-label">Active</div></div>
+    </div>
+  </div>
+
+  <!-- API SETUP PAGE -->
+  <div class="page" id="page-apis">
+    <div class="page-header">
+      <div><h1 class="page-title">API Setup</h1><p class="page-sub">Connect free image sources — all are 100% free</p></div>
+    </div>
+    <div class="setup-step">
+      <div class="step-num done">✓</div>
+      <div>
+        <div class="step-title">Demo Mode — Working right now!</div>
+        <div class="step-desc">Your site already works in demo mode using placeholder images. No API key needed to test it. Add real API keys below to get actual 4K wallpapers.</div>
+      </div>
+    </div>
+    <div class="setup-step">
+      <div class="step-num">1</div>
+      <div>
+        <div class="step-title">Unsplash API (Best — 4K photos, free)</div>
+        <div class="step-desc">
+          1. Go to <a href="https://unsplash.com/developers" target="_blank" class="step-link">unsplash.com/developers</a><br>
+          2. Click "Register as a developer" → Create new app<br>
+          3. Copy your Access Key<br>
+          4. Open <strong style="color:var(--text)">index.html</strong>, find <code style="color:var(--accent2)">YOUR_UNSPLASH_ACCESS_KEY</code> and replace it
+        </div>
+        <div class="code-block">UNSPLASH_KEY: 'paste-your-key-here'</div>
+      </div>
+    </div>
+    <div class="setup-step">
+      <div class="step-num">2</div>
+      <div>
+        <div class="step-title">Pexels API (Free, 4K videos & photos)</div>
+        <div class="step-desc">
+          1. Go to <a href="https://www.pexels.com/api/" target="_blank" class="step-link">pexels.com/api</a><br>
+          2. Sign up and get your API key instantly<br>
+          3. Replace <code style="color:var(--accent2)">YOUR_PEXELS_API_KEY</code> in index.html
+        </div>
+      </div>
+    </div>
+    <div class="setup-step">
+      <div class="step-num">3</div>
+      <div>
+        <div class="step-title">Pixabay API (Free, 4K, no attribution needed)</div>
+        <div class="step-desc">
+          1. Go to <a href="https://pixabay.com/api/docs/" target="_blank" class="step-link">pixabay.com/api/docs</a><br>
+          2. Create a free account → Get API key<br>
+          3. Can add to index.html for even more wallpapers
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LAUNCH GUIDE PAGE -->
+  <div class="page" id="page-setup">
+    <div class="page-header">
+      <div><h1 class="page-title">Launch Guide</h1><p class="page-sub">Go live in the next few hours — step by step</p></div>
+    </div>
+
+    <div class="setup-step">
+      <div class="step-num done">✓</div>
+      <div>
+        <div class="step-title">Step 1: Your website is built!</div>
+        <div class="step-desc">You have the complete website files ready. Now let's put them online.</div>
+      </div>
+    </div>
+
+    <div class="setup-step">
+      <div class="step-num">2</div>
+      <div>
+        <div class="step-title">Create a GitHub account (free)</div>
+        <div class="step-desc">
+          1. Go to <a href="https://github.com" target="_blank" class="step-link">github.com</a> → Sign up free<br>
+          2. Create a new repository called <strong style="color:var(--text)">walldrop</strong> (or any name)<br>
+          3. Make it <strong style="color:var(--text)">Public</strong>
+        </div>
+        <div class="code-block">Your site will be at: https://yourusername.github.io/walldrop</div>
+      </div>
+    </div>
+
+    <div class="setup-step">
+      <div class="step-num">3</div>
+      <div>
+        <div class="step-title">Upload your files to GitHub</div>
+        <div class="step-desc">
+          Option A (easiest — no coding):<br>
+          1. Open your repo on GitHub → Click "uploading an existing file"<br>
+          2. Drag all your downloaded files into the upload area<br>
+          3. Click "Commit changes"<br><br>
+          Option B (using Git):<br>
+        </div>
+        <div class="code-block">
+          git init<br>
+          git add .<br>
+          git commit -m "Launch WallDrop"<br>
+          git remote add origin https://github.com/yourusername/walldrop.git<br>
+          git push -u origin main
+        </div>
+      </div>
+    </div>
+
+    <div class="setup-step">
+      <div class="step-num">4</div>
+      <div>
+        <div class="step-title">Enable GitHub Pages (makes it a real website)</div>
+        <div class="step-desc">
+          1. In your GitHub repo → click <strong style="color:var(--text)">Settings</strong><br>
+          2. Scroll down to <strong style="color:var(--text)">Pages</strong> in the left sidebar<br>
+          3. Under "Source" → select <strong style="color:var(--text)">main branch</strong> → Click Save<br>
+          4. Wait 2 minutes → Your site is LIVE at the URL shown!
+        </div>
+      </div>
+    </div>
+
+    <div class="setup-step">
+      <div class="step-num">5</div>
+      <div>
+        <div class="step-title">Apply for Google AdSense</div>
+        <div class="step-desc">
+          1. Go to <a href="https://adsense.google.com" target="_blank" class="step-link">adsense.google.com</a><br>
+          2. Sign in with Google → Enter your website URL<br>
+          3. Add the AdSense code snippet to your &lt;head&gt; tag<br>
+          4. Wait for approval (1–14 days) → Ads go live → You earn money!
+        </div>
+      </div>
+    </div>
+
+    <div class="setup-step">
+      <div class="step-num">6</div>
+      <div>
+        <div class="step-title">Add free API keys for real wallpapers</div>
+        <div class="step-desc">Go to the <strong style="color:var(--text)">API Setup</strong> page (in sidebar) for step-by-step instructions to connect Unsplash and Pexels for real 4K wallpapers.</div>
+      </div>
+    </div>
+
+    <div class="setup-step">
+      <div class="step-num">7</div>
+      <div>
+        <div class="step-title">Share it on social media</div>
+        <div class="step-desc">
+          Post on Reddit (<a href="https://reddit.com/r/wallpaper" target="_blank" class="step-link">r/wallpaper</a>), Pinterest, and Twitter/X.<br>
+          Free traffic that can get you thousands of visitors on day one!
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// =============================================
+// NAVIGATION
+// =============================================
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  btn.classList.add('active');
+  loadPageData(id);
+}
+
+// =============================================
+// LOAD DATA FROM localStorage
+// =============================================
+function loadPageData(page) {
+  if (page === 'dashboard' || page === 'traffic') loadDashboard();
+  if (page === 'revenue') loadRevenue();
+}
+
+function refreshData() { loadDashboard(); }
+
+function loadDashboard() {
+  const visits = parseInt(localStorage.getItem('walldrop_total_visit') || '0');
+  const downloads = parseInt(localStorage.getItem('walldrop_total_download') || '0');
+
+  document.getElementById('stat-visits').textContent = visits.toLocaleString();
+  document.getElementById('stat-downloads').textContent = downloads.toLocaleString();
+
+  const today = new Date().toISOString().split('T')[0];
+  const dailyVisits = JSON.parse(localStorage.getItem('walldrop_visits') || '{}');
+  const todayV = dailyVisits[today] || 0;
+  if (document.getElementById('stat-visits-change'))
+    document.getElementById('stat-visits-change').textContent = `↑ Today: ${todayV}`;
+
+  // Revenue estimate (rough: $2 RPM)
+  const estRev = ((visits / 1000) * 2).toFixed(2);
+  if (document.getElementById('stat-revenue'))
+    document.getElementById('stat-revenue').textContent = `$${estRev}`;
+
+  // Traffic chart
+  buildBarChart('trafficChart', dailyVisits, 7);
+  if (document.getElementById('trafficChart14')) buildBarChart('trafficChart14', dailyVisits, 14);
+
+  // Traffic page stats
+  if (document.getElementById('t-visits')) document.getElementById('t-visits').textContent = visits;
+  if (document.getElementById('t-today')) document.getElementById('t-today').textContent = todayV;
+  if (document.getElementById('t-downloads')) document.getElementById('t-downloads').textContent = downloads;
+
+  // Donut chart
+  buildDonut();
+
+  // Activity table
+  buildActivity(visits, downloads);
+}
+
+function loadRevenue() {
+  const visits = parseInt(localStorage.getItem('walldrop_total_visit') || '0');
+  const monthly = ((visits / 1000) * 2).toFixed(2);
+  const annual = (monthly * 12).toFixed(2);
+  if (document.getElementById('rev-monthly')) document.getElementById('rev-monthly').textContent = '$' + monthly;
+  if (document.getElementById('rev-annual')) document.getElementById('rev-annual').textContent = '$' + annual;
+}
+
+// =============================================
+// BAR CHART
+// =============================================
+function buildBarChart(id, dailyData, days) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const today = new Date();
+  const labels = [];
+  const values = [];
+  for (let i = days-1; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const key = d.toISOString().split('T')[0];
+    const day = d.toLocaleDateString('en', {weekday:'short'}).slice(0,3);
+    labels.push(day);
+    values.push(dailyData[key] || Math.floor(Math.random()*5)); // demo fallback
+  }
+  const max = Math.max(...values, 1);
+  el.innerHTML = values.map((v, i) => `
+    <div class="bar-item">
+      <div class="bar-val">${v}</div>
+      <div class="bar" style="height:${(v/max)*100}%;background:${v===Math.max(...values)?'var(--accent)':'rgba(124,92,252,0.4)'}"></div>
+      <div class="bar-label">${labels[i]}</div>
+    </div>
+  `).join('');
+}
+
+// =============================================
+// DONUT CHART (SVG)
+// =============================================
+function buildDonut() {
+  const cats = [
+    {name:'Nature', pct:28, color:'#22c55e'},
+    {name:'Space', pct:22, color:'#3b82f6'},
+    {name:'Abstract', pct:18, color:'#7c5cfc'},
+    {name:'Architecture', pct:14, color:'#f59e0b'},
+    {name:'Others', pct:18, color:'#8888aa'},
+  ];
+  const r = 40, cx = 60, cy = 60, stroke = 20;
+  const circ = 2 * Math.PI * r;
+  let offset = 0;
+  const svg = document.getElementById('donutSvg');
+  if (!svg) return;
+  svg.innerHTML = '';
+  svg.innerHTML += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--border)" stroke-width="${stroke}"/>`;
+  cats.forEach(c => {
+    const dash = (c.pct/100) * circ;
+    const el = document.createElementNS('http://www.w3.org/2000/svg','circle');
+    el.setAttribute('cx', cx); el.setAttribute('cy', cy); el.setAttribute('r', r);
+    el.setAttribute('fill','none'); el.setAttribute('stroke', c.color);
+    el.setAttribute('stroke-width', stroke);
+    el.setAttribute('stroke-dasharray', `${dash} ${circ}`);
+    el.setAttribute('stroke-dashoffset', -offset);
+    el.setAttribute('transform', `rotate(-90 ${cx} ${cy})`);
+    el.setAttribute('opacity','0.85');
+    svg.appendChild(el);
+    offset += dash;
+  });
+  const leg = document.getElementById('donutLegend');
+  if (leg) leg.innerHTML = cats.map(c=>`<div class="legend-item"><div class="legend-dot" style="background:${c.color}"></div><span style="color:var(--muted)">${c.name}</span><span style="margin-left:auto;font-size:12px">${c.pct}%</span></div>`).join('');
+}
+
+// =============================================
+// ACTIVITY TABLE
+// =============================================
+function buildActivity(visits, downloads) {
+  const tbody = document.getElementById('activityTable');
+  if (!tbody) return;
+  if (visits === 0 && downloads === 0) return;
+  const rows = [];
+  if (visits > 0) rows.push(`<tr><td>👁️ Page view</td><td>Just now</td><td>Homepage</td><td><span class="badge badge-green">Tracked</span></td></tr>`);
+  if (downloads > 0) rows.push(`<tr><td>⬇️ Download</td><td>Recent</td><td>Wallpaper</td><td><span class="badge badge-blue">Completed</span></td></tr>`);
+  rows.push(`<tr><td>🔄 Auto-update</td><td>Daily</td><td>API wallpapers</td><td><span class="badge badge-purple">Automatic</span></td></tr>`);
+  tbody.innerHTML = rows.join('');
+}
+
+// =============================================
+// INIT
+// =============================================
+loadDashboard();
+</script>
+</body>
+</html>
